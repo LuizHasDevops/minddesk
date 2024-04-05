@@ -10,12 +10,7 @@ import org.springframework.stereotype.Service;
 public class DTOConverterService {
 
     public Solicitacao converterParaSolicitacaoDTO(Solicitacao solicitacaoDTO) {
-        Solicitacao solicitacao = new Solicitacao();
-        Agente agente = new Agente();
-        agente.setId(solicitacaoDTO.getAgente().getId());
-        agente.setNome(solicitacaoDTO.getAgente().getNome());
-        agente.setEmail(solicitacaoDTO.getAgente().getEmail());
-        agente.setCargo(solicitacaoDTO.getAgente().getCargo());
+
 
         Categoria categoria = new Categoria();
         categoria.setId(solicitacaoDTO.getCategoria().getId());
@@ -28,13 +23,14 @@ public class DTOConverterService {
         cliente.setEmail(solicitacaoDTO.getCliente().getEmail());
         cliente.setTelefone(solicitacaoDTO.getCliente().getTelefone());
 
+        Solicitacao solicitacao = new Solicitacao();
         solicitacao.setTexto(solicitacaoDTO.getTexto());
         solicitacao.setUrgencia(solicitacaoDTO.getUrgencia());
         solicitacao.setDescricao(solicitacaoDTO.getDescricao());
-        solicitacao.setEmail(solicitacaoDTO.getEmail());
-        solicitacao.setAgente(agente);
+
+
         solicitacao.setCategoria(categoria);
-        solicitacao.setCliente(cliente);
+
 
         return solicitacao;
     }

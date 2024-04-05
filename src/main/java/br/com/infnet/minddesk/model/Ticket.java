@@ -6,10 +6,6 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.hibernate.annotations.GenericGenerator;
-import org.hibernate.annotations.UuidGenerator;
-
-import java.util.UUID;
 
 @NoArgsConstructor
 @AllArgsConstructor
@@ -24,9 +20,6 @@ public abstract class Ticket {
     @SequenceGenerator(name = "ticket_sequence", sequenceName = "ticket_sequence", allocationSize = 1)
     private Long id;
 
-    @ManyToOne
-    @JoinColumn(name = "agente_id")
-    private Agente agente;
 
     @ManyToOne
     @JoinColumn(name = "categoria_id")
@@ -37,6 +30,13 @@ public abstract class Ticket {
     @JsonBackReference
     private Cliente cliente;
 
-    @Column(nullable = false)
-    private String email;
+    @OneToOne
+    @JoinColumn(name = "fila_id")
+    private Fila fila;
+
+    @ManyToOne
+    @JoinColumn(name = "agente_id")
+    private Agente agente;
+
+
 }

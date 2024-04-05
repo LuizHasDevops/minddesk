@@ -1,6 +1,5 @@
 package br.com.infnet.minddesk.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.*;
@@ -27,7 +26,5 @@ public class Cliente {
     @Column(nullable = false)
     private String telefone;
 
-    @OneToMany(mappedBy = "id")
-    @JsonManagedReference
-    private List<Solicitacao> solicitacoes;
+
 }
