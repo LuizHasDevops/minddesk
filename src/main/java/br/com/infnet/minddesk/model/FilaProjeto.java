@@ -6,9 +6,9 @@ import lombok.*;
 @Getter
 @Setter
 @NoArgsConstructor
-
 @Entity
 public class FilaProjeto extends Fila {
 
+    private String descricao;
 
 }

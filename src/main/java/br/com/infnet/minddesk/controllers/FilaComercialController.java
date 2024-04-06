@@ -1,5 +1,6 @@
 package br.com.infnet.minddesk.controllers;
 
+import br.com.infnet.minddesk.exception.FilaCormecialException;
 import br.com.infnet.minddesk.model.FilaComercial;
 import br.com.infnet.minddesk.services.FilaComercialService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -21,8 +22,12 @@ public class FilaComercialController {
     @Operation(summary = "Criar um novo Ticket.")
     @PostMapping("/criar")
     public ResponseEntity<FilaComercial> criarFilaComercial(@RequestBody FilaComercial filaComercial) {
-        filaComercialService.save(filaComercial);
-        return new ResponseEntity<>(filaComercial, HttpStatus.CREATED);
+        try {
+            filaComercialService.save(filaComercial);
+            return new ResponseEntity<>(filaComercial, HttpStatus.CREATED);
+        }catch (FilaCormecialException e){
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
     }
     @Operation(summary = "Listar os Tickets.")
     @GetMapping("/listar")

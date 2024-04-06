@@ -20,6 +20,9 @@ public abstract class Ticket {
     @SequenceGenerator(name = "ticket_sequence", sequenceName = "ticket_sequence", allocationSize = 1)
     private Long id;
 
+    @ManyToOne
+    @JoinColumn(name = "agente_id")
+    private Agente agente;
 
     @ManyToOne
     @JoinColumn(name = "categoria_id")
@@ -33,10 +36,5 @@ public abstract class Ticket {
     @OneToOne
     @JoinColumn(name = "fila_id")
     private Fila fila;
-
-    @ManyToOne
-    @JoinColumn(name = "agente_id")
-    private Agente agente;
-
 
 }

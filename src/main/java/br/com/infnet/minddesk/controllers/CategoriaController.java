@@ -1,7 +1,9 @@
 package br.com.infnet.minddesk.controllers;
 
+import br.com.infnet.minddesk.exception.CategoriaException;
 import br.com.infnet.minddesk.model.Categoria;
 import br.com.infnet.minddesk.services.impl.CategoriaServiceImpl;
+import br.com.infnet.minddesk.services.impl.SolicitacaoServiceImpl;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,18 +22,29 @@ public class CategoriaController {
     @Autowired
     private CategoriaServiceImpl categoriaService;
 
+    @Autowired
+    private SolicitacaoServiceImpl solicitacaoService;
+
     @Operation(summary = "Adicionar uma Nova Categoria")
     @PostMapping
     public ResponseEntity<Categoria> criarCategoria(@RequestBody Categoria categoria) {
-        categoriaService.save(categoria);
-        return ResponseEntity.status(HttpStatus.CREATED).body(categoria);
+        try {
+            categoriaService.save(categoria);
+            return ResponseEntity.status(HttpStatus.CREATED).body(categoria);
+        }catch (CategoriaException e){
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
     }
 
     @Operation(summary = "Listagem de Categorias")
     @GetMapping
     public ResponseEntity<List<Categoria>> listarCategorias() {
-        List<Categoria> categorias = categoriaService.findAll();
-        return ResponseEntity.ok(categorias);
+        try {
+            List<Categoria> categorias = categoriaService.findAll();
+            return ResponseEntity.ok(categorias);
+        }catch (CategoriaException e){
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
     }
 
     @Operation(summary = "Exibir Categoria por ID")
@@ -59,8 +72,12 @@ public class CategoriaController {
     public ResponseEntity<String> deletarCategoria(@PathVariable Long id) {
         Optional<Categoria> categoriaOptional = categoriaService.findById(id);
         if (categoriaOptional.isPresent()) {
-            categoriaService.deleteById(id);
-            return ResponseEntity.ok("Categoria deletado com sucesso");
+            if (!solicitacaoService.existsByCategoriaId(id)) {
+                categoriaService.deleteById(id);
+                return ResponseEntity.ok("Categoria deletado com sucesso");
+            }else {
+                return ResponseEntity.ok("Não foi possível excluir a Categoria, porque tem pelo menos uma solicitação com essa categoria");
+            }
         } else {
             return ResponseEntity.notFound().build();
         }

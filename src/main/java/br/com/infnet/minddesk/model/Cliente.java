@@ -26,5 +26,7 @@ public class Cliente {
     @Column(nullable = false)
     private String telefone;
 
-
+    @OneToMany(mappedBy = "id")
+    @JsonManagedReference
+    private List<Solicitacao> solicitacoes;
 }

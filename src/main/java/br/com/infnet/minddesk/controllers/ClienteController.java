@@ -1,7 +1,11 @@
 package br.com.infnet.minddesk.controllers;
 
+import br.com.infnet.minddesk.exception.ClienteException;
 import br.com.infnet.minddesk.model.Cliente;
+import br.com.infnet.minddesk.records.ClienteDTO;
+import br.com.infnet.minddesk.services.DTOConverterService;
 import br.com.infnet.minddesk.services.impl.ClienteServiceImpl;
+import br.com.infnet.minddesk.services.impl.SolicitacaoServiceImpl;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,18 +24,34 @@ public class ClienteController {
     @Autowired
     private ClienteServiceImpl clienteService;
 
+    @Autowired
+    private DTOConverterService dtoConverterService;
+
+    @Autowired
+    private SolicitacaoServiceImpl solicitacaoService;
+
     @Operation(summary = "Adicionar um Novo Cliente")
     @PostMapping
-    public ResponseEntity<Cliente> criarCliente(@RequestBody Cliente cliente) {
-        clienteService.save(cliente);
-        return ResponseEntity.status(HttpStatus.CREATED).body(cliente);
+    public ResponseEntity<Cliente> criarCliente(@RequestBody ClienteDTO dto) {
+        try {
+            Cliente cliente = dtoConverterService.converterParaClienteDTO(dto);
+            clienteService.save(cliente);
+            return ResponseEntity.status(HttpStatus.CREATED).body(cliente);
+        }catch (ClienteException e){
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+
     }
 
     @Operation(summary = "Listagem de Clientes")
     @GetMapping
     public ResponseEntity<List<Cliente>> listarClientes() {
-        List<Cliente> clientes = clienteService.findAll();
-        return ResponseEntity.ok(clientes);
+        try {
+            List<Cliente> clientes = clienteService.findAll();
+            return ResponseEntity.ok(clientes);
+        }catch (ClienteException e){
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
     }
 
     @Operation(summary = "Exibir Cliente por ID")
@@ -49,7 +69,6 @@ public class ClienteController {
         if (clienteOptional.isEmpty()) {
             return ResponseEntity.notFound().build();
         }
-        Cliente cliente = clienteOptional.get();
         Cliente clienteAtualizadoSalvo = clienteService.update(id, clienteAtualizado);
         return ResponseEntity.ok(clienteAtualizadoSalvo);
     }
@@ -59,8 +78,12 @@ public class ClienteController {
     public ResponseEntity<String> deletarCliente(@PathVariable Long id) {
         Optional<Cliente> clienteOptional = clienteService.findById(id);
         if (clienteOptional.isPresent()) {
-            clienteService.deleteById(id);
-            return ResponseEntity.ok("Cliente deletado com sucesso");
+            if (!solicitacaoService.existsByClienteId(id)) {
+                clienteService.deleteById(id);
+                return ResponseEntity.ok("Cliente deletado com sucesso");
+            }else{
+                return ResponseEntity.ok("Existe pelo menos uma solicitação com este Cliente.");
+            }
         } else {
             return ResponseEntity.notFound().build();
         }

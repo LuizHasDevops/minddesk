@@ -18,5 +18,6 @@ public abstract class Fila {
 
     @OneToOne
     private Ticket ticket;
+
 }
 
